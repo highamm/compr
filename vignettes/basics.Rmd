@@ -1,0 +1,52 @@
+---
+title: "Basics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(compr)
+```
+
+The purpose of the `compr` package is to provide functionality for fitting paired competition models in `R`. The primary function, `comp_glm()` has the following arguments:
+
+* `formula`, giving the response variable (a numeric vector of 0's and 1's) and contest-level predictors.
+* `data`, the data used.
+* `p1`, a string with the name of the column with the first player. 
+* `p2`, a string with the name of the column with the second player.
+* `p1_effects`, a one-sided formula with player-level effects for `p1`
+* `p2_effects`, a one-sided formula with player-level effects for `p2`.
+* `ref_player`, a string giving the name of the player to be used as the reference player (taken to be the first player in `p1` by default).
+
+
+```{r}
+comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
+                     p1 = "player1", p2 = "player2",
+                     p1_effects = ~ point_server1,
+                     p2_effects = ~ point_server2,
+                     ref_player = "Milos Raonic")
+```
+
+The `comp_mod` object is of class `glm` so any generic summary functions for basic `glm()` models can also be applied to models fit with `comp_glm()`:
+
+```{r}
+summary(comp_mod)
+AIC(comp_mod)
+
+library(broom)
+tidy(comp_mod)
+glance(comp_mod)
+
+augment(comp_mod) ## need to clean up names
+augment(comp_mod) |> names()
+```
