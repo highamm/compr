@@ -1,0 +1,46 @@
+
+```{r setup}
+library(compr)
+library(tidyverse)
+```
+
+```{r}
+
+#nba_game<-load("data/nba_game.rda")
+combined_df
+comp_mod <- comp_glm(home_winner ~ 1, data = combined_df,
+                     p1 = "home", p2 = "away",
+                     #p1_effects = ~ point_server1,
+                     #p2_effects = ~ point_server2,
+                     ref_player = "Boston Celtics"
+                     )
+
+```
+
+```{r}
+coefficients <- comp_mod$coefficients
+coefficients <- coefficients[-1]
+
+coefficients <- coefficients[1:8]
+names <- names(coefficients)
+
+win_probability <- function(player, coefficients, reference_player) {
+  #linear_combination <- coefficients[player] - coefficients[reference_player]
+  win_probability <- 1 / (1 + exp(-coefficients[player]))
+  return(win_probability)
+}
+
+df <- data.frame(Name = character(0), Prob = numeric(0))
+
+for (name in names) {
+  prob <- win_probability(name, coefficients, reference_player)
+  new_row <- data.frame(Name = name, Prob = round(prob * 100, 2))
+  df <- rbind(df, new_row)
+}
+
+rownames(combined_df) <- NULL
+ggplot(df, aes(x = Name, y = Prob)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Probability by Name", x = "Name", y = "Probability (%)")
+```
+
