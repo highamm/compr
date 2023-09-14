@@ -12,7 +12,7 @@ comp_mod <- comp_glm(home_winner ~ 1, data = combined_df,
                      p1 = "home", p2 = "away",
                      #p1_effects = ~ point_server1,
                      #p2_effects = ~ point_server2,
-                     ref_player = "Boston Celtics"
+                     ref_player = "Denver Nuggets"
                      )
 
 ```
@@ -37,10 +37,55 @@ for (name in names) {
   new_row <- data.frame(Name = name, Prob = round(prob * 100, 2))
   df <- rbind(df, new_row)
 }
+rownames(df) <- NULL
 
-rownames(combined_df) <- NULL
+df <- df %>% arrange(desc(Prob))
+df$Name <- reorder(df$Name, -df$Prob)
+
 ggplot(df, aes(x = Name, y = Prob)) +
-  geom_point() +
-  labs(title = "Scatter Plot of Probability by Name", x = "Name", y = "Probability (%)")
+  geom_segment(aes(xend = Name, yend = 0)) +
+  geom_point(size =3) +
+  labs(title = "Lolipop of Win Probability Against the Boston Celtics", x = "Team Name", y = "Win Probability (%)") +
+  theme_bw()
 ```
+
+
+```{r}
+#trying to put it into a function
+comp_mod$data$ref_player
+
+lolipop_prob <- function(model){
+    coefficients <- model$coefficients
+    coefficients <- coefficients[-1]
+    names <- names(coefficients)
+  
+  win_probability <- function(player, coefficients, reference_player) {
+    #linear_combination <- coefficients[player] - coefficients[reference_player]
+    win_probability <- 1 / (1 + exp(-coefficients[player]))
+    return(win_probability)
+  }
+  
+  df <- data.frame(Name = character(0), Prob = numeric(0))
+  
+  for (name in names) {
+    prob <- win_probability(name, coefficients, reference_player)
+    new_row <- data.frame(Name = name, Prob = round(prob * 100, 2))
+    df <- rbind(df, new_row)
+  }
+  rownames(df) <- NULL
+  
+  df <- df %>% arrange(desc(Prob))
+  df$Name <- reorder(df$Name, -df$Prob)
+  
+  ggplot(df, aes(x = Name, y = Prob)) +
+    geom_segment(aes(xend = Name, yend = 0)) +
+    geom_point(size =3) +
+    labs(title = paste("Lollipop of Win Probability Against the", comp_mod$data$ref_player), x = "Name", y = "Win Probability (%)") +
+    theme_bw()
+    
+}
+
+lolipop_prob(comp_mod)
+```
+
 
