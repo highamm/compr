@@ -37,16 +37,16 @@ for (url in urls) {
 }
 
 # Combine the DataFrames into one
-combined_df <- do.call(rbind, dfs)
-rownames(combined_df) <- NULL
+nba_game <- do.call(rbind, dfs)
+rownames(nba_game) <- NULL
 ```
 
 
 ```{r}
-combined_df <- combined_df[1:1230, ]
-combined_df <- combined_df[, -c(2, 7, 9, 10, 11)]
+nba_game <- nba_game[1:1230, ]
+nba_game <- nba_game[, -c(2, 7, 9, 10, 11)]
 
-combined_df <- combined_df %>%
+nba_game <- nba_game %>%
   rename(
     date = 1,       
     away = 2,       
@@ -56,11 +56,11 @@ combined_df <- combined_df %>%
     OT = 6          
   )
 
-combined_df <- combined_df %>% #there are both OT and 2OT
+nba_game <- nba_game %>% #there are both OT and 2OT
   mutate(OT = ifelse(OT == "", FALSE, TRUE),
          home_winner = ifelse(home_pts > away_pts, TRUE, FALSE))
 
-save(combined_df, file = "data/nba_game.rda")
+saveRDS(nba_game, file = "data/nba_game.rda")
 ```
 
 

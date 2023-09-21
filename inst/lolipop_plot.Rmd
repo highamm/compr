@@ -2,6 +2,7 @@
 ```{r setup}
 library(compr)
 library(tidyverse)
+library(broom)
 ```
 
 ```{r}
@@ -12,13 +13,14 @@ comp_mod <- comp_glm(home_winner ~ 1, data = combined_df,
                      p1 = "home", p2 = "away",
                      #p1_effects = ~ point_server1,
                      #p2_effects = ~ point_server2,
-                     ref_player = "Denver Nuggets"
+                     ref_player = "Denver Nugets"
                      )
 
 ```
 
 ```{r}
 coefficients <- comp_mod$coefficients
+# this is the bump for the home team
 coefficients <- coefficients[-1]
 
 coefficients <- coefficients[1:8]
@@ -39,7 +41,7 @@ for (name in names) {
 }
 rownames(df) <- NULL
 
-df <- df %>% arrange(desc(Prob))
+#fct_reorder
 df$Name <- reorder(df$Name, -df$Prob)
 
 ggplot(df, aes(x = Name, y = Prob)) +
@@ -61,7 +63,7 @@ lolipop_prob <- function(model){
   
   win_probability <- function(player, coefficients, reference_player) {
     #linear_combination <- coefficients[player] - coefficients[reference_player]
-    win_probability <- 1 / (1 + exp(-coefficients[player]))
+    win_probability <- 1 / (1 + exp(coefficients[player]))
     return(win_probability)
   }
   
@@ -74,18 +76,24 @@ lolipop_prob <- function(model){
   }
   rownames(df) <- NULL
   
-  df <- df %>% arrange(desc(Prob))
-  df$Name <- reorder(df$Name, -df$Prob)
+
+df <- df %>%
+  arrange(desc(Prob)) %>%
+  mutate(Name = fct_reorder(Name, -Prob))
   
   ggplot(df, aes(x = Name, y = Prob)) +
     geom_segment(aes(xend = Name, yend = 0)) +
     geom_point(size =3) +
-    labs(title = paste("Lollipop of Win Probability Against the", comp_mod$data$ref_player), x = "Name", y = "Win Probability (%)") +
-    theme_bw()
+    labs(title = paste("Lollipop of the", comp_mod$data$ref_player,"Win Probability"), x = "Name", y = "Win Probability (%)") +
+    theme_bw() +
+    coord_flip()
     
 }
 
 lolipop_prob(comp_mod)
+
+#make a function with model as argument 
+augment_test <- augment(comp_mod)
 ```
 
 
