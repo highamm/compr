@@ -89,11 +89,62 @@ df <- df %>%
     coord_flip()
     
 }
+```
 
+
+```{r}
 lolipop_prob(comp_mod)
 
 #make a function with model as argument 
 augment_test <- augment(comp_mod)
+
+t <- augment(comp_mod) %>% 
+  mutate(pct_prob = 100 * plogis(.fitted)) %>% 
+  #relocate(diabetes, .fitted, pct_prob) %>% 
+  arrange(-.fitted)
+```
+
+
+```{r}
+
+
+augmented_data <- augment(comp_mod, data = combined_df)
+
+win_probabilities <- 1 / (1 + exp(-augmented_data$.fitted))
+
+df <- data.frame(
+  Prob = round(win_probabilities * 100, 2),
+  Fitted = augmented_data$.fitted,
+  Team = combined_df$away,
+  Residuals = augmented_data$.resid,  
+  Hat = augmented_data$.hat,  
+  Sigma = augmented_data$.sigma,  
+  CooksD = augmented_data$.cooksd,  
+  StdResiduals = augmented_data$.std.resid  
+)
+
+df <- df %>%
+group_by(Team) %>%
+summarize(Avg_Prob = mean(Prob),
+          SE_Fitted = sd(Fitted) / sqrt(n()))
+
+df <- df %>%
+  arrange(desc(Avg_Prob)) %>%
+  mutate(Team = fct_reorder(Team, -Avg_Prob))
+
+# Convert "Team" to a factor and reorder it as needed
+df$Team <- factor(df$Team, levels = unique(df$Team))
+
+# Create a ggplot with horizontal error bars using geom_segment
+ggplot(df, aes(x = Avg_Prob, y = Team)) +
+  geom_point(size = 2) +
+  geom_segment(aes(xend = Avg_Prob - SE_Fitted, yend = Team, x = Avg_Prob)) +
+  geom_segment(aes(xend = Avg_Prob + SE_Fitted, yend = Team, x = Avg_Prob)) +
+  theme_bw()
+
+win_probabilities <- augment(comp_mod, type.predict = "response", se_fit = TRUE)
+head(win_probabilities)
+
 ```
 
 
