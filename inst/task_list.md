@@ -1,3 +1,11 @@
+## For October 5
+
+1. MH: Test `augment()`
+
+2. Standard Error or Confidence Interval Bars
+
+3. Look into using home court advantage as a predictor. Look at tennis serving example for analogous analysis.
+
 ## For September 28
 
 1. Make data frame that is 31 rows and 2 columns to use in `augment()`
