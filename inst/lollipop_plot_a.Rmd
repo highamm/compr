@@ -1,0 +1,117 @@
+---
+title: "lollipop_plot_a"
+author: "James Wolpe"
+date: "2023-09-25"
+output: html_document
+---
+
+```{r}
+nba_game
+comp_mod <- comp_glm(home_winner ~ 1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     #p1_effects = ~ point_server1,
+                     #p2_effects = ~ point_server2,
+                     ref_player = "Houston Rockets"
+                     )
+
+opp_player_list <- comp_mod[["data"]][["players_unique"]]
+ref_player_list <- rep(comp_mod[["data"]][["ref_player"]], 30)
+```
+
+```{r}
+
+fitted_df <- data.frame(
+                   home = comp_mod[["data"]][["player1_vec"]],
+                   away = comp_mod[["data"]][["player2_vec"]],
+                   win_perc = comp_mod[["fitted.values"]]
+                   )
+
+aug_fitted_df <- augment(
+  comp_mod,
+  data = nba_game,
+  newdata = fitted_df,
+  se_fit = TRUE,
+  interval = 'prediction'
+  #FIXME do I want to use prediction?
+)
+
+loli_teams <- data.frame(
+  home = rep(comp_mod[["data"]][["ref_player"]], 30),
+  away = comp_mod[["data"]][["players_unique"]]
+
+) %>% filter(home !=away)
+
+joined_df <- left_join(loli_teams, distinct(aug_fitted_df),  by = c("home", "away"))
+
+joined_df_1 <- joined_df %>% 
+  mutate( 
+    se = .05
+  #se = .se.fit
+  #se= 1 / (1 + exp(joined_df$.se.fit))
+  #se= .se.fit/.fitted
+  )
+
+```
+
+
+```{r}
+ggplot(joined_df_1, aes(x = away, y = win_perc)) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = win_perc - se, ymax = win_perc + se))+
+  theme_bw()+
+  coord_flip()
+```
+
+
+
+
+
+```{r}
+
+plot_win_perc_with_error_bars <- function(model, data, player_of_interest) {
+  opp_player_list <- model[["data"]][["players_unique"]]
+  ref_player_list <- rep(model[["data"]][[player_of_interest]], 30)
+  
+  fitted_df <- data.frame(
+    home = model[["data"]][["player1_vec"]],
+    away = model[["data"]][["player2_vec"]],
+    win_perc = model[["fitted.values"]]
+  )
+  
+  aug_fitted_df <- augment(
+    model,
+    data = data,
+    newdata = fitted_df,
+    se_fit = TRUE,
+    interval = 'prediction'
+  )
+  
+  loli_teams <- data.frame(
+    home = rep(player_of_interest, 30),
+    away = model[["data"]][["players_unique"]]
+  ) %>% filter(home != away)
+  
+  joined_df <- left_join(loli_teams, distinct(aug_fitted_df), by = c("home", "away"))
+  
+  joined_df_1 <- joined_df %>% 
+    mutate( 
+      se = 0.05  # You can adjust the 'se' value here
+      # You can also uncomment and use any other method to calculate 'se'
+    ) %>%
+    mutate(away = fct_reorder(away, win_perc))
+  
+  ggplot(joined_df_1, aes(x = away, y = win_perc)) +
+    geom_point(size = 2) +
+    geom_errorbar(aes(ymin = win_perc - se, ymax = win_perc + se)) +
+    labs(x = "Player",
+         y = "Win Percentage",
+         title = paste(player_of_interest, "Plot"))+
+    scale_y_continuous(labels = scales::percent_format(scale = 100))+
+    theme_bw() +
+    coord_flip()
+}
+
+plot_win_perc_with_error_bars(comp_mod, nba_game, 'New York Knicks')
+```
+
+

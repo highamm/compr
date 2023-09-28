@@ -13,7 +13,7 @@ comp_mod <- comp_glm(home_winner ~ 1, data = combined_df,
                      p1 = "home", p2 = "away",
                      #p1_effects = ~ point_server1,
                      #p2_effects = ~ point_server2,
-                     ref_player = "Denver Nugets"
+                     ref_player = "Houston Rockets"
                      )
 
 ```
@@ -105,9 +105,50 @@ t <- augment(comp_mod) %>%
 ```
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r}
+loli_teams <- data.frame(
+  comp_mod[["data"]][["players_unique"]],
+  rep(comp_mod[["data"]][["ref_player"]], 30)
+)
+
+fitted_df <- data.frame(
+                   comp_mod[["data"]][["player1_vec"]],
+                   comp_mod[["data"]][["player2_vec"]],
+                   comp_mod[["fitted.values"]]
+                   )
+
+aug_fitted_df <- augment(
+  comp_mod,
+  data = nba_game,
+  newdata = fitted_df,
+  se_fit = TRUE,
+  interval = 'prediction'
+  #FIXME do I want to use prediction?
+)
+```
 
 
+
+```{r}
 augmented_data <- augment(comp_mod, data = combined_df)
 
 win_probabilities <- 1 / (1 + exp(-augmented_data$.fitted))
@@ -146,5 +187,10 @@ win_probabilities <- augment(comp_mod, type.predict = "response", se_fit = TRUE)
 head(win_probabilities)
 
 ```
+
+
+## rep("celtics, 31)
+
+
 
 
