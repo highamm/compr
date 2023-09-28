@@ -31,7 +31,7 @@ aug_fitted_df <- augment(
   data = nba_game,
   newdata = fitted_df,
   se_fit = TRUE,
-  interval = 'prediction'
+  type.predict = "link"
   #FIXME do I want to use prediction?
 )
 
@@ -110,7 +110,7 @@ plot_win_perc_with_error_bars <- function(model, data, player_of_interest) {
     coord_flip()
 }
 
-plot_win_perc_with_error_bars(comp_mod, nba_game, 'New York Knicks')
+plot_win_perc_with_error_bars(comp_mod, nba_game, 'Orlando Magic')
 ```
 
 

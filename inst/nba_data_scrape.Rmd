@@ -60,7 +60,7 @@ nba_game <- nba_game %>% #there are both OT and 2OT
   mutate(OT = ifelse(OT == "", FALSE, TRUE),
          home_winner = ifelse(home_pts > away_pts, TRUE, FALSE))
 
-saveRDS(nba_game, file = "data/nba_game.rda")
+save(nba_game, file = "data/nba_game.rda")
 ```
 
 

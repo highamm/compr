@@ -110,6 +110,7 @@ comp_glm <- function(formula, data, p1, p2,
 
   model_out <- stats::glm(matrix_for_glm[ ,1] ~ -1 + matrix_for_glm[ ,-1],
                    family = "binomial")
+  # TODO family:
   names(model_out$coefficients) <- names(full_matrix)[-1]
   model_out
 }

@@ -9,7 +9,7 @@ library(broom)
 
 #nba_game<-load("data/nba_game.rda")
 combined_df
-comp_mod <- comp_glm(home_winner ~ 1, data = combined_df,
+comp_mod <- comp_glm(home_winner ~ 1, data = nba_game,
                      p1 = "home", p2 = "away",
                      #p1_effects = ~ point_server1,
                      #p2_effects = ~ point_server2,
@@ -138,8 +138,8 @@ fitted_df <- data.frame(
 
 aug_fitted_df <- augment(
   comp_mod,
-  data = nba_game,
-  newdata = fitted_df,
+  #data = nba_game,
+  newdata = loli_teams,
   se_fit = TRUE,
   interval = 'prediction'
   #FIXME do I want to use prediction?
