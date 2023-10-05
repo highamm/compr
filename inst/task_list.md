@@ -1,3 +1,11 @@
+## For October 19
+
+1. Finish `predict_comp()` function.
+
+2. Look into using home court advantage as a predictor. Look at tennis serving example for analogous analysis.
+
+3. Standard Error or Confidence Interval Bars.
+
 ## For October 5
 
 1. MH: Test `augment()`
