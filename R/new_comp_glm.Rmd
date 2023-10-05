@@ -156,7 +156,7 @@ comp_glm <- function(formula, data, p1, p2,
   
   ## model.response(model_frame_nocomp, type = "numeric") |> matrix
   response_matrix <- model_frame_nocomp[ ,1 , drop = FALSE]
-  
+  #browser()
   player1_vec <- data |> dplyr::pull(p1)
   player2_vec <- data |> dplyr::pull(p2)
   
