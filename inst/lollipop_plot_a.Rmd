@@ -83,7 +83,8 @@ plot_win_perc_with_error_bars <- function(model, data, player_of_interest) {
     data = data,
     newdata = fitted_df,
     se_fit = TRUE,
-    interval = 'prediction'
+    #FIXME if it defaults to this do I even need to include it
+    type.predict = "link"
   )
   
   loli_teams <- data.frame(
@@ -113,4 +114,52 @@ plot_win_perc_with_error_bars <- function(model, data, player_of_interest) {
 plot_win_perc_with_error_bars(comp_mod, nba_game, 'Orlando Magic')
 ```
 
+
+```{r}
+# TODO counld add a
+player_of_interest <- 'Orlando Magic'
+data <- nba_game
+opp_player_list <- comp_mod[["data"]][["players_unique"]]
+ref_player_list <- rep(comp_mod[["data"]][[player_of_interest]], 30)
+
+fitted_df <- data.frame(
+  home = comp_mod[["data"]][["player1_vec"]],
+  away = comp_mod[["data"]][["player2_vec"]],
+  win_perc = comp_mod[["fitted.values"]]
+)
+
+aug_fitted_df <- augment(
+  comp_mod,
+  data = data,
+  newdata = fitted_df,
+  se_fit = TRUE,
+  #FIXME if it defaults to this do I even need to include it
+  type.predict = "link"
+)
+
+loli_teams <- data.frame(
+  home = rep(player_of_interest, 30),
+  away = comp_mod[["data"]][["players_unique"]]
+) %>% filter(home != away)
+
+joined_df <- left_join(loli_teams, distinct(aug_fitted_df), by = c("home", "away"))
+
+joined_df_1 <- joined_df %>% 
+  mutate( 
+    win_perc_1 = exp(.fitted)/ (1+exp(.fitted)),
+    u_bound = exp(.fitted + .se.fit)/ (1+ exp(.fitted + .se.fit)),
+    l_bound = exp(.fitted - .se.fit)/ (1+ exp(.fitted - .se.fit))
+  ) %>%
+  mutate(away = fct_reorder(away, win_perc))
+
+ggplot(joined_df_1, aes(x = away, y = win_perc)) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = l_bound, ymax = u_bound)) +
+  labs(x = "Player",
+       y = "Win Percentage",
+       title = paste(player_of_interest, "Plot"))+
+  scale_y_continuous(labels = scales::percent_format(scale = 100))+
+  theme_bw() +
+  coord_flip()
+```
 
