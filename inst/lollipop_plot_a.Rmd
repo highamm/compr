@@ -170,7 +170,6 @@ plot_win_perc_with_error_bars <- function(model, data, player_of_interest){
 
 ```{r}
 win_pred <- function(model, data, player_of_interest){
-  #a f
   
   
 }

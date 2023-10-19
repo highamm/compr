@@ -90,22 +90,43 @@ formula_obj <- as.formula(formula_str)
 # Use the formula object in glm
 model_out <- stats::glm(formula_obj, data = df_for_glm, family = "binomial")
   
-  names(model_out$coefficients) <- names(full_matrix)[-1]
+  # FIXME I dont think that I need this
+  #names(model_out$coefficients) <- names(full_matrix)[-1]
   model_out
 
 ```
 
 ```{r}
-comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
-                     p1 = "player1", p2 = "player2",
-                     p1_effects = ~ point_server1,
-                     p2_effects = ~ point_server2,
-                     ref_player = "Milos Raonic")
 
 ```
 
 
 
+
+
+
+```{r}
+# new data 
+comp_mod_1
+
+#delete the first column of the following
+comp_mod_1[["data"]]
+
+  opp_player_list <- comp_mod_1[["data"]][["players_unique"]]
+  ref_player_list <- rep(comp_mod_1[["data"]][["ref_player"]], length(comp_mod_1[["data"]][["players_unique"]]))
+  
+  names(comp_mod_1[["data"]])
+  
+  new_data <- data.frame(
+    ref = ref_player_list,
+    opp = opp_player_list
+  ) %>% filter(p1 != p2)
+```
+
+```{r}
+new_df <- bind_rows(comp_mod_1[["model"]], new_data)
+
+```
 
 
 
@@ -113,17 +134,9 @@ comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
 #3. Write a prediction function that
 
 #a. first builds the appropriate matrix for `newdata` (provided as a function argument), using the same structure as what was used to fit the model in the original comp_glm() call (the model object is also a function argument). Then, convert this matrix to a data.frame just like was done in (1).
+  
+  comp_mod[["model"]]
 
-  opp_player_list <- comp_mod[["data"]][["players_unique"]]
-  ref_player_list <- rep(comp_mod[["data"]][["ref_player"]], length(comp_mod[["data"]][["players_unique"]]))
-  
-  
-  loli_players <- data.frame(
-    ref = ref_player_list,
-    opp = opp_player_list
-  ) #%>% filter(p1 != p2)
-  
-  
     aug_fitted_df <- augment(
     comp_mod,
     #data = data,
@@ -133,8 +146,11 @@ comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
     type.predict = "link"
   )
     
+    
+    
   
-pred_fun <- function(newdata, model) {
+pred_fun <- function(model, newdata) {
+  
   
 }
 ```
@@ -145,7 +161,7 @@ pred_fun <- function(newdata, model) {
 
 Fucntion here
 ```{r}
-comp_glm <- function(formula, data, p1, p2,
+comp_glm_1 <- function(formula, data, p1, p2,
                      p1_effects = ~ 1, p2_effects = ~ 1,
                      ref_player = NULL) {
   model_frame_nocomp <- model.frame(formula, na.action =
@@ -206,7 +222,7 @@ comp_glm <- function(formula, data, p1, p2,
   
   #FIXME do I need to do this?
   # assigning the colnames of the df to the colnames of full_matrix
-  colnames(df_for_glm) <- colnames(full_matrix)
+  #colnames(df_for_glm) <- colnames(full_matrix)
   
   
   response_column <- colnames(df_for_glm)[1]
@@ -220,10 +236,35 @@ comp_glm <- function(formula, data, p1, p2,
   
   # Use the formula object in glm
   model_out <- stats::glm(formula_obj, data = df_for_glm, family = "binomial")
-  
-  names(model_out$coefficients) <- names(full_matrix)[-1]
   model_out
 }
 ```
 
+
+
+
+
+
+```{r}
+comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
+                     p1 = "home", p2 = "away",
+                     p1_effects = ~ point_server1,
+                     p2_effects = ~ point_server2,
+                     ref_player = "Milos Raonic")
+
+comp_mod_0 <- comp_glm(home_winner ~ 1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     #p1_effects = ~ point_server1,
+                     #p2_effects = ~ point_server2,
+                     ref_player = "Boston Celtics"
+                     )
+
+
+comp_mod_1 <- comp_glm_1(home_winner ~ 1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     #p1_effects = ~ point_server1,
+                     #p2_effects = ~ point_server2,
+                     ref_player = "Boston Celtics"
+                     )
+```
 
