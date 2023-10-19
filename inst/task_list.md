@@ -1,3 +1,9 @@
+## For October 26
+
+1. See sheet for finishing augment() part.
+
+2. MH: look into intercept component.
+
 ## For October 19
 
 1. Finish `predict_comp()` function.
