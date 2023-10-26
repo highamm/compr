@@ -1,3 +1,14 @@
+## For November 2
+
+1. Clean-up code.
+
+2. Document functions and data.
+
+3. Make plot again with output from new augment function.
+
+4. Options: add gaussian linear model and/or compare two home court advantage models.
+
+
 ## For October 26
 
 1. See sheet for finishing augment() part.
