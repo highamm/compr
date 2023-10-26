@@ -6,7 +6,8 @@ library(broom)
 library(tidyverse)
 ```
 
-Fucntion here
+
+Function here
 ```{r}
 comp_glm_1 <- function(formula, data, p1, p2,
                      p1_effects = ~ 1, p2_effects = ~ 1,
@@ -74,23 +75,75 @@ comp_glm_1 <- function(formula, data, p1, p2,
   
   response_column <- colnames(df_for_glm)[1]
   
-  #FIXME only way I could figure out how to do this dynamically
   
-  # construct the formula as a string and then convert to a formula object
-  formula_str <- paste(response_column, "~ . -", response_column)
+  
+   formula_str <- paste(response_column, "~ . -", response_column,
+                       "- ", 1) ## drops second intercept
   
   formula_obj <- as.formula(formula_str)
   
   # Use the formula object in glm
-  model_out <- stats::glm(formula_obj, data = df_for_glm, family = "binomial")
+  model_out <- stats::glm(formula_obj, data = df_for_glm,
+                          family = "binomial")
+  model_out$ref_player <- ref_player
+  model_out$og_data <- data
   model_out
 }
 ```
 
 
+
+
 ```{r}
-formula = point_winner ~ 1             
-data = tennis_point
+comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
+                     p1 = "home", p2 = "away",
+                     p1_effects = ~ point_server1,
+                     p2_effects = ~ point_server2,
+                     ref_player = "Milos Raonic")
+
+comp_mod_0 <- comp_glm(home_winner ~ 1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     #p1_effects = ~ point_server1,
+                     #p2_effects = ~ point_server2,
+                     ref_player = "Boston Celtics"
+                     )
+
+
+comp_mod_1 <- comp_glm_1(home_winner ~ 1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     ref_player = "Boston Celtics"
+                     )
+
+#playing with home winner effects
+comp_mod_home <- comp_glm_1(home_winner ~ -1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     ref_player = "Boston Celtics")
+
+comp_mod_tennis <- comp_glm_1(formula = point_winner ~ 1,
+         data = tennis_point,
+         p1_effects = ~ 1, p2_effects = ~ 1,
+         ref_player = "Andy Murray",
+         p1 = "player1", p2 = "player2")
+
+```
+
+
+```{r}
+#3. Create new data
+
+unique_players <- comp_mod_tennis[["model"]][-c(1, 2)] |> names()
+
+new_df <- data.frame(
+  player1 = rep(comp_mod_tennis$ref_player, length(unique_players)),
+  player2 = unique_players
+)
+```
+
+
+```{r}
+new_data <- bind_rows(comp_mod_tennis[["og_data"]], new_df)
+formula = point_winner ~ 1
+data = new_data
 p1_effects = ~ 1
 p2_effects = ~ 1
 ref_player = "Andy Murray"
@@ -99,7 +152,77 @@ p2 = "player2"
 
 
 
-  
+model_frame_nocomp <- model.frame(formula, na.action =
+                                      stats::na.pass, data = data)
+model_matrix_nocomp <- model.matrix(formula,
+                                    model.frame(formula, data,
+                                                na.action = stats::na.pass))
+
+## model.response(model_frame_nocomp, type = "numeric") |> matrix
+response_matrix <- model_frame_nocomp[ ,1 , drop = FALSE]
+#browser()
+player1_vec <- data |> dplyr::pull(p1)
+player2_vec <- data |> dplyr::pull(p2)
+
+players_unique <- c(player1_vec,
+                    player2_vec) |>
+  unique()
+
+p1_mat <- model.matrix(p1_effects,
+                       model.frame(p1_effects, data,
+                                   na.action = stats::na.pass))
+
+p2_mat <- model.matrix(p2_effects,
+                       model.frame(p2_effects, data,
+                                   na.action = stats::na.pass))
+
+
+p1_mat_split <- lapply(seq_len(ncol(p1_mat)),
+                       function(x) p1_mat[ , x])
+names(p1_mat_split) <- colnames(p1_mat)
+
+p2_mat_split <- lapply(seq_len(ncol(p2_mat)),
+                       function(x) p2_mat[ , x])
+names(p2_mat_split) <- colnames(p2_mat)
+
+
+model_matrix_list <- purrr::pmap(list(val1 = p1_mat_split,
+                                      val2 = p2_mat_split,
+                                      names = p1_mat_split |> names()),
+                                 create_d_mat,
+                                 vec = rep(0, length(players_unique)),
+                                 players = players_unique,
+                                 player1_vec = player1_vec,
+                                 player2_vec = player2_vec)
+
+comp_matrix_full <- do.call(cbind, model_matrix_list)
+
+if (is.null(ref_player)) {
+  ref_player <- players_unique[1]
+}
+
+comp_matrix_red <- comp_matrix_full[ ,-which(players_unique == ref_player)]
+
+
+full_matrix <- cbind(response_matrix, model_matrix_nocomp, comp_matrix_red)
+
+# end of function
+
+
+aug_df <- full_matrix %>% tail(nrow(full_matrix)-nrow(comp_mod_tennis[["data"]]))
+
+
+aug_mod <- augment(comp_mod_tennis, newdata = aug_df, type.predict = "link")
+
+```
+
+
+
+
+```{r}
+matrix_funct <- function(formula, data, p1, p2,
+                     p1_effects = ~ 1, p2_effects = ~ 1,
+                     ref_player = NULL) {
   model_frame_nocomp <- model.frame(formula, na.action =
                                       stats::na.pass, data = data)
   model_matrix_nocomp <- model.matrix(formula,
@@ -108,7 +231,7 @@ p2 = "player2"
   
   ## model.response(model_frame_nocomp, type = "numeric") |> matrix
   response_matrix <- model_frame_nocomp[ ,1 , drop = FALSE]
-  
+  #browser()
   player1_vec <- data |> dplyr::pull(p1)
   player2_vec <- data |> dplyr::pull(p2)
   
@@ -153,107 +276,53 @@ p2 = "player2"
 
 
   full_matrix <- cbind(response_matrix, model_matrix_nocomp, comp_matrix_red)
-  
-  df_for_glm <- full_matrix[stats::complete.cases(full_matrix), ] #|> as.matrix()
-  
-  #FIXME do I need to do this?
-  # assigning the colnames of the df to the colnames of full_matrix
-  colnames(df_for_glm) <- colnames(full_matrix)
-  
-  
-response_column <- colnames(df_for_glm)[1]
-
-#FIXME only way I could figure out how to do this dynamically
-
-# construct the formula as a string and then convert to a formula object
-formula_str <- paste(response_column, "~ . -", response_column)
-
-formula_obj <- as.formula(formula_str)
-
-# Use the formula object in glm
-model_out <- stats::glm(formula_obj, data = df_for_glm, family = "binomial")
-  
-  # FIXME I dont think that I need this
-  #names(model_out$coefficients) <- names(full_matrix)[-1]
-  model_out
-
-```
-
-
-
-
-```{r}
-# Make new data
-comp_mod_1
-
-unique_players <- names(comp_mod_1[["coefficients"]])
-#dropping the first two, they are both "(Intercept)"
-unique_players <- unique_players[-c(1,2)]
-#remove back ticks from unique_players
-unique_players <- gsub("`", "", unique_players)
-
-#this doesnt have the ref player in it: comp_mod_1[["effects"]]
-  
-  ref_player_list <- rep("Boston Celtics", length(comp_mod_1[["coefficients"]])-2)
-  
-  
-  new_data <- data.frame(
-    home = ref_player_list,
-    away = unique_players
-  ) %>% filter(p1 != p2)
-```
-
-
-
-
-```{r}
-#3. Write a prediction function that
-  
-    
-  
-pred_comp <- function(model, newdata) {
-  new_df <- bind_rows(comp_mod_1[["data"]], new_data)
-  full_df<- new_df[new_data,]
-  #new_df <- bind_rows(nba_game, new_data)
-  aug_df <- augment(comp_mod_1, newdata = new_df, type.predict = "link")
 }
 ```
 
+# 
+```{r}
+comp_glm_2 <- function(full_matrix){
+  df_for_glm <- full_matrix[stats::complete.cases(full_matrix), ] #|> as.matrix()
 
+  
+  
+  response_column <- colnames(df_for_glm)[1]
+  
+  
+  
+   formula_str <- paste(response_column, "~ . -", response_column,
+                       "- ", 1) ## drops second intercept
+  
+  formula_obj <- as.formula(formula_str)
+  
+  # Use the formula object in glm
+  model_out <- stats::glm(formula_obj, data = df_for_glm,
+                          family = "binomial")
+  model_out$ref_player <- ref_player
+  model_out$og_data <- data
+  model_out
+}
+```
 
-
-
-
-
-
-
-
+# Augment function
+```{r}
+aug_mod <- function(full_matrix, comp_mod){
+  aug_df <- full_matrix %>% tail(nrow(full_matrix)-nrow(comp_mod[["data"]]))
+  aug_mod <- augment(comp_mod, newdata = aug_df, type.predict = "link")
+}
+```
 
 ```{r}
-comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
-                     p1 = "home", p2 = "away",
-                     p1_effects = ~ point_server1,
-                     p2_effects = ~ point_server2,
-                     ref_player = "Milos Raonic")
+test <- matrix_funct(formula = point_winner ~ 1,
+         data = tennis_point,
+         p1_effects = ~ 1, p2_effects = ~ 1,
+         ref_player = "Andy Murray",
+         p1 = "player1", p2 = "player2")
 
-comp_mod_0 <- comp_glm(home_winner ~ 1, data = nba_game,
-                     p1 = "home", p2 = "away",
-                     #p1_effects = ~ point_server1,
-                     #p2_effects = ~ point_server2,
-                     ref_player = "Boston Celtics"
-                     )
+test_2 <- comp_glm_2(test)
 
+test_3 <- aug_mod(test, test_2)
 
-comp_mod_1 <- comp_glm_1(home_winner ~ 1, data = nba_game,
-                     p1 = "home", p2 = "away",
-                     ref_player = "Boston Celtics"
-                     )
-
-#playing with home winner effects
-comp_mod_home <- comp_glm_1(home_winner ~ -1, data = nba_game,
-                     p1 = "home", p2 = "away",
-                     p1_effects = ~ home,
-                     p2_effects = ~ away,
-                     ref_player = "Boston Celtics")
 ```
+
 
