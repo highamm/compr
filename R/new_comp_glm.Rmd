@@ -279,6 +279,7 @@ matrix_funct <- function(formula, data, p1, p2,
 }
 ```
 
+
 # 
 ```{r}
 comp_glm_2 <- function(full_matrix){
@@ -321,7 +322,13 @@ test <- matrix_funct(formula = point_winner ~ 1,
 
 test_2 <- comp_glm_2(test)
 
-test_3 <- aug_mod(test, test_2)
+aug_test <- matrix_funct(formula = point_winner ~ 1,
+         data = new_data,
+         p1_effects = ~ 1, p2_effects = ~ 1,
+         ref_player = "Andy Murray",
+         p1 = "player1", p2 = "player2")
+
+test_3 <- aug_mod(aug_test, test_2)
 
 ```
 
