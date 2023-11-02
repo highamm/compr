@@ -141,4 +141,11 @@
 "toy_comp"
 
 
+#' NBA data
+#'
+#' A data set with NBA data.
+#'
+"nba_game"
+
+
 
