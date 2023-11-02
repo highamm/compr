@@ -1,3 +1,18 @@
+## For November 9
+
+1. Clean-up file structure.
+
+2. Fix augment()
+
+  ## stacking og_data and newdata (to make a larger data frame)
+  ## using build_mat_model() to get a new model matrix
+  ## getting rid of the first n rows corresponding to og_data
+  ## augment on comp_mod with the results from build_mat_model()
+
+3. Make plot again with output from new augment function.
+
+4. Options: add gaussian linear model and/or compare two home court advantage models. 
+
 ## For November 2
 
 1. Clean-up code.
@@ -6,7 +21,7 @@
 
 3. Make plot again with output from new augment function.
 
-4. Options: add gaussian linear model and/or compare two home court advantage models.
+4. Options: add gaussian linear model and/or compare two home court advantage models. 
 
 
 ## For October 26
