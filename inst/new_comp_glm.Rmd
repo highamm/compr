@@ -127,7 +127,7 @@ aug_mod <- function(newdata, comp_mod, ...){
                   p2_effects = comp_mod[["p2_effects"]],
                   ref_player = comp_mod[["ref_player"]])
   full_matrix <- mat_list[["full_matrix"]]
-  aug_df <- full_matrix %>% tail(nrow(full_matrix)-nrow(comp_mod[["data"]]))
+  aug_df <- full_matrix %>% tail(nrow(full_matrix)-nrow(comp_mod[["og_data"]]))
   aug_mod <- augment(comp_mod, newdata = aug_df, se_fit = TRUE, ...) |> select(.fitted, .se.fit)
   aug_mod_out <- bind_cols(newdata, aug_mod)
 }
