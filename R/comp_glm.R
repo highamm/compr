@@ -26,6 +26,15 @@
 #'       p1_effects = ~ point_server1, p2_effects = ~ point_server2,
 #'       ref_player = "Milos Raonic", family = binomial)
 #'
+#' @param formula
+#' @param data
+#' @param p1
+#' @param p2
+#' @param p1_effects
+#' @param p2_effects
+#' @param ref_player
+#' @param family
+#'
 #' @export
 
 comp_glm <- function(formula, data, p1, p2, p1_effects = ~ 1, p2_effects = ~ 1, ref_player = NULL, family = "binomial"){

@@ -14,6 +14,9 @@
 #'       p1_effects = ~ point_server1, p2_effects = ~ point_server2,
 #'       ref_player = "Milos Raonic", family = binomial)
 #'
+#' @param mat_list
+#' @param family
+#'
 #' @export
 
 fit_model <- function(mat_list, family){
