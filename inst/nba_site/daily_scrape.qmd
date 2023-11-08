@@ -1,0 +1,104 @@
+---
+title: "Untitled"
+format: html
+editor: source
+---
+
+```{r}
+library(rvest)
+library(tidyverse)
+
+# Define the list of URLs
+urls <- c(
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-october.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-november.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-december.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-january.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-february.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-march.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-april.html"
+  
+)
+
+# Initialize an empty list to store DataFrames
+dfs <- list()
+
+# Loop through the URLs and scrape data
+for (url in urls) {
+  page_html <- url %>%
+    read_html()
+  
+  df <- page_html %>%
+    html_nodes("table") %>%
+    .[[1]] %>%
+    html_table(header = TRUE)
+  
+  dfs[[url]] <- df
+}
+
+# Combine the DataFrames into one
+nba_game <- do.call(rbind, dfs)
+rownames(nba_game) <- NULL
+```
+
+
+```{r}
+nba_game <- nba_game[1:1230, ]
+nba_game <- nba_game[, -c(2, 7, 9, 10, 11)]
+
+nba_game <- nba_game %>%
+  rename(
+    date = 1,       
+    away = 2,       
+    away_pts = 3,   
+    home = 4,       
+    home_pts = 5,   
+    OT = 6          
+  )
+
+nba_season <- nba_game %>% #there are both OT and 2OT
+  mutate(OT = ifelse(OT == "", FALSE, TRUE),
+         home_winner = ifelse(home_pts > away_pts, TRUE, FALSE),
+         pts_diff = home_pts - away_pts)
+# convert date to date format
+nba_season$date <- as.Date(nba_season$date, format = "%a, %b %d, %Y")
+
+#get todays date
+today <- Sys.Date() +1
+
+# split up nba_season 2 df's one before today and one after
+nba_season_before <- nba_season %>%
+  filter(date < today)
+
+#get all of todays games
+todays_games <- nba_season %>%
+  filter(date == today) %>%
+  select(-date, -away_pts, -home_pts, -OT, -home_winner, -pts_diff)
+
+current_nba_pred <- comp_glm(formula = home_winner ~ 1,
+         data = nba_season_before,
+         p1 = "home", 
+         p2 = "away",
+         p1_effects = ~ 1,
+         p2_effects = ~ 1,
+         family = "binomial")
+
+todays_pred <- aug_mod(todays_games, current_nba_pred)
+
+todays_pred_1 <- todays_pred |> 
+  mutate( 
+    win_perc = exp(.fitted)/ (1+exp(.fitted)),
+    u_bound = exp(.fitted + .se.fit)/ (1+ exp(.fitted + .se.fit)),
+    l_bound = exp(.fitted - .se.fit)/ (1+ exp(.fitted - .se.fit))
+  ) |>
+  select(away, home, win_perc, u_bound, l_bound)
+
+# make a plot that is a table of away and home teams name
+
+
+
+```
+
+
+
+

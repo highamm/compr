@@ -54,7 +54,7 @@ comp_glm(point_winner ~ -1, data = tennis_point,
     p1_effects = ~ 1, p2_effects = ~ 1,
     ref_player = "Milos Raonic")
 
-comp_glm(point_winner ~ -1, data = tennis_point_wta,
+comp_glm(formula = point_winner ~ -1, data = tennis_point_wta,
     p1 = "player1", p2 = "player2",
     p1_effects = ~ 1, p2_effects = ~ 1,
     ref_player = "Angelique Kerber")

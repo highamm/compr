@@ -105,5 +105,5 @@ build_model_mat <- function(formula, data, p1, p2,
                    p2 = p2,
                    p1_effects = p1_effects,
                    p2_effects = p2_effects,
-                   formula_str = formula)
+                   og_formula = formula)
 }

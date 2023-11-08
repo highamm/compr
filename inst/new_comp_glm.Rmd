@@ -1,0 +1,164 @@
+
+
+```{r setup}
+library(compr)
+library(broom)
+library(tidyverse)
+```
+
+# build matrix function
+```{r}
+build_model_mat <- function(formula, data, p1, p2,
+                            p1_effects = ~ 1, p2_effects = ~ 1,
+                            ref_player = NULL) {
+  model_frame_nocomp <- model.frame(formula, na.action =
+                                      stats::na.pass, data = data)
+  model_matrix_nocomp <- model.matrix(formula,
+                                      model.frame(formula, data,
+                                                  na.action = stats::na.pass))
+
+  ## model.response(model_frame_nocomp, type = "numeric") |> matrix
+  response_matrix <- model_frame_nocomp[ ,1 , drop = FALSE]
+  #browser()
+  player1_vec <- data |> dplyr::pull(p1)
+  player2_vec <- data |> dplyr::pull(p2)
+
+  players_unique <- c(player1_vec,
+                      player2_vec) |>
+    unique()
+
+  p1_mat <- model.matrix(p1_effects,
+                         model.frame(p1_effects, data,
+                                     na.action = stats::na.pass))
+
+  p2_mat <- model.matrix(p2_effects,
+                         model.frame(p2_effects, data,
+                                     na.action = stats::na.pass))
+
+
+  p1_mat_split <- lapply(seq_len(ncol(p1_mat)),
+                         function(x) p1_mat[ , x])
+  names(p1_mat_split) <- colnames(p1_mat)
+
+  p2_mat_split <- lapply(seq_len(ncol(p2_mat)),
+                         function(x) p2_mat[ , x])
+  names(p2_mat_split) <- colnames(p2_mat)
+
+
+  model_matrix_list <- purrr::pmap(list(val1 = p1_mat_split,
+                                        val2 = p2_mat_split,
+                                        names = p1_mat_split |> names()),
+                                   create_d_mat,
+                                   vec = rep(0, length(players_unique)),
+                                   players = players_unique,
+                                   player1_vec = player1_vec,
+                                   player2_vec = player2_vec)
+
+  comp_matrix_full <- do.call(cbind, model_matrix_list)
+
+  if (is.null(ref_player)) {
+    ref_player <- players_unique[1]
+  }
+
+  comp_matrix_red <- comp_matrix_full[ ,-which(players_unique == ref_player)]
+
+
+  full_matrix <- cbind(response_matrix, model_matrix_nocomp, comp_matrix_red)
+
+  #FIXME: used this to be able to pass ref_player to fit_model
+  mat_list <- list(full_matrix = full_matrix,
+                   ref_player = ref_player,
+                   data = data,
+                   p1 = p1,
+                   p2 = p2,
+                   p1_effects = p1_effects,
+                   p2_effects = p2_effects,
+                   og_formula = formula)
+}
+```
+
+
+# fit model function
+```{r}
+fit_model <- function(mat_list, family){
+
+  df_for_glm <- mat_list[["full_matrix"]][stats::complete.cases(mat_list[["full_matrix"]]), ] #|> as.matrix()
+
+  response_column <- colnames(df_for_glm)[1]
+
+  og_formula <- paste(response_column, "~ . -", response_column,
+                       "- ", 1) ## drops second intercept
+
+  formula_obj <- as.formula(og_formula)
+
+  # Use the formula object in glm
+  model_out <- stats::glm(formula_obj, data = df_for_glm, family = family)
+  model_out$ref_player <- mat_list[["ref_player"]]
+  model_out$og_data <- mat_list[["data"]]
+  model_out$p1 <- mat_list[["p1"]]
+  model_out$p2 <- mat_list[["p2"]]
+  model_out$p1_effects <- mat_list[["p1_effects"]]
+  model_out$p2_effects <- mat_list[["p2_effects"]]
+  model_out$og_formula <- mat_list[["og_formula"]]
+  model_out
+}
+```
+
+
+# comp_glm function
+```{r}
+comp_glm <- function(formula, data, p1, p2, p1_effects = ~ 1, p2_effects = ~ 1, ref_player = NULL, family = "binomial"){
+  mat_list <- build_model_mat(formula, data, p1, p2, p1_effects, p2_effects, ref_player)
+  model_out <- fit_model(mat_list, family = family)
+  model_out
+}
+```
+
+
+# Augment function
+```{r}
+aug_mod <- function(newdata, comp_mod, ...){
+  new_bound_df <- bind_rows(comp_mod[["og_data"]], newdata)
+  mat_list <- build_model_mat(formula = comp_mod[["og_formula"]],
+                  data = new_bound_df, 
+                  p1 = comp_mod[["p1"]],
+                  p2 = comp_mod[["p2"]], 
+                  p1_effects = comp_mod[["p1_effects"]],
+                  p2_effects = comp_mod[["p2_effects"]],
+                  ref_player = comp_mod[["ref_player"]])
+  full_matrix <- mat_list[["full_matrix"]]
+  aug_df <- full_matrix %>% tail(nrow(full_matrix)-nrow(comp_mod[["data"]]))
+  aug_mod <- augment(comp_mod, newdata = aug_df, se_fit = TRUE, ...) |> select(.fitted, .se.fit)
+  aug_mod_out <- bind_cols(newdata, aug_mod)
+}
+# Should I clean up the output?
+# Bind cols with new_df 
+# Do it in aug_mod
+# Make a quorto website 
+#rename from formula_str to og_formula
+
+```
+
+
+```{r}
+#3. Create new data
+unique_players <- comp_mod_tennis[["model"]][-c(1, 2)] |> names()
+
+new_df <- data.frame(
+  player1 = rep(comp_mod_tennis$ref_player, length(unique_players)),
+  player2 = unique_players
+)
+
+comp_mod_tennis <- comp_glm(formula = point_winner ~ -1,
+         data = tennis_point,
+         p1_effects = ~ 1, p2_effects = ~ 1,
+         ref_player = "Andy Murray",
+         p1 = "player1", p2 = "player2")
+```
+
+
+```{r}
+aug_test <- aug_mod(new_df, comp_mod_tennis)
+```
+
+

@@ -20,14 +20,12 @@ fit_model <- function(mat_list, family){
 
   df_for_glm <- mat_list[["full_matrix"]][stats::complete.cases(mat_list[["full_matrix"]]), ] #|> as.matrix()
 
-
-
   response_column <- colnames(df_for_glm)[1]
 
-  formula_str <- paste(response_column, "~ . -", response_column,
-                       "- ", 1) ## drops second intercept
+  og_formula <- paste(response_column, "~ . -", response_column,
+                      "- ", 1) ## drops second intercept
 
-  formula_obj <- as.formula(formula_str)
+  formula_obj <- as.formula(og_formula)
 
   # Use the formula object in glm
   model_out <- stats::glm(formula_obj, data = df_for_glm, family = family)
@@ -37,6 +35,6 @@ fit_model <- function(mat_list, family){
   model_out$p2 <- mat_list[["p2"]]
   model_out$p1_effects <- mat_list[["p1_effects"]]
   model_out$p2_effects <- mat_list[["p2_effects"]]
-  model_out$formula_str <- mat_list[["formula_str"]]
+  model_out$og_formula <- mat_list[["og_formula"]]
   model_out
 }

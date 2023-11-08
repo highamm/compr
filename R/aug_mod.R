@@ -12,9 +12,9 @@
 #'
 #' @export
 
-aug_mod <- function(newdata, comp_mod){
-  new_bound_df <- bind_rows(comp_mod[["data"]], newdata)
-  mat_list <- build_model_mat(formula = comp_mod[["formula_str"]],
+aug_mod <- function(newdata, comp_mod, ...){
+  new_bound_df <- bind_rows(comp_mod[["og_data"]], newdata)
+  mat_list <- build_model_mat(formula = comp_mod[["og_formula"]],
                               data = new_bound_df,
                               p1 = comp_mod[["p1"]],
                               p2 = comp_mod[["p2"]],
@@ -22,8 +22,7 @@ aug_mod <- function(newdata, comp_mod){
                               p2_effects = comp_mod[["p2_effects"]],
                               ref_player = comp_mod[["ref_player"]])
   full_matrix <- mat_list[["full_matrix"]]
-  # FIXME not sure why there was an unknown column
-  full_matrix <- full_matrix %>% select(-3)
   aug_df <- full_matrix %>% tail(nrow(full_matrix)-nrow(comp_mod[["data"]]))
-  aug_mod <- augment(comp_mod, newdata = aug_df)
+  aug_mod <- augment(comp_mod, newdata = aug_df, se_fit = TRUE, ...) |> select(.fitted, .se.fit)
+  aug_mod_out <- bind_cols(newdata, aug_mod)
 }
