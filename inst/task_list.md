@@ -1,3 +1,13 @@
+## November 16
+
+Options:
+
+1. Make basketball home court advantage into a vignette.
+
+2. Look into function testing with testthat.
+
+
+
 ## For November 9
 
 1. Clean-up file structure.
