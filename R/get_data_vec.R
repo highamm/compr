@@ -51,13 +51,19 @@ create_d_mat <- function(vec, players, player1_vec, player2_vec,
   out <- matrix(list_out |> unlist(),
                 ncol = length(players), byrow = TRUE)
 
-  if (sum(val1[!is.na(val1)]) == length(val1[!is.na(val1)])) {
-    colnames(out) <- players
-  } else {
+  # if (sum(val1[!is.na(val1)]) == length(val1[!is.na(val1)])) {
+  #
+  #   colnames(out) <- players
+  #
+  # } else {
+  #
+  #   colnames(out) <- paste(players, names,
+  #                          sep = "_")
+  # }
 
-    colnames(out) <- paste(players, names,
-                           sep = "_")
-  }
+  colnames(out) <- paste(players, names, sep = "_") |>
+    stringr::str_remove(pattern = "_\\(Intercept\\)")
+
   rownames(out) <- NULL
 
   return(out)
