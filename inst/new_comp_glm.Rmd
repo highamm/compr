@@ -141,6 +141,12 @@ aug_mod <- function(newdata, comp_mod, ...){
 
 
 ```{r}
+comp_mod_tennis <- comp_glm(formula = point_winner ~ -1,
+         data = tennis_point,
+         p1_effects = ~ 1, p2_effects = ~ 1,
+         ref_player = "Andy Murray",
+         p1 = "player1", p2 = "player2")
+
 #3. Create new data
 unique_players <- comp_mod_tennis[["model"]][-c(1, 2)] |> names()
 
@@ -148,17 +154,37 @@ new_df <- data.frame(
   player1 = rep(comp_mod_tennis$ref_player, length(unique_players)),
   player2 = unique_players
 )
-
-comp_mod_tennis <- comp_glm(formula = point_winner ~ -1,
-         data = tennis_point,
-         p1_effects = ~ 1, p2_effects = ~ 1,
-         ref_player = "Andy Murray",
-         p1 = "player1", p2 = "player2")
 ```
 
 
 ```{r}
-aug_test <- aug_mod(new_df, comp_mod_tennis)
+#plot_win_perc_with_error_bars <- function(model, data, player_of_interest){
+
+  aug_df_out <- aug_mod(new_df, comp_mod_tennis)
+  
+  
+  perc_aug_df_out <- aug_df_out |> 
+    mutate( 
+      win_perc = exp(.fitted)/ (1+exp(.fitted)),
+      u_bound = exp(.fitted + .se.fit)/ (1+ exp(.fitted + .se.fit)),
+      l_bound = exp(.fitted - .se.fit)/ (1+ exp(.fitted - .se.fit))
+    ) |> mutate(fct_reorder(as.factor(perc_aug_df_out[2]), win_perc))
+  
+  
+  ggplot(perc_aug_df_out, aes(x = p2, y = win_perc)) +
+    geom_point(size = 2) +
+    geom_errorbar(aes(ymin = l_bound, ymax = u_bound)) +
+    labs(x = "Player",
+         y = "Win Percentage",
+         title = paste(comp_mod_tennis["ref_player"], "Plot"))+
+    scale_y_continuous(labels = scales::percent_format(scale = 100))+
+    theme_bw() +
+    coord_flip()
+
+  #select the name of the first column of perc_aug_df_out
+  names(perc_aug_df_out[1])
+  # shiny book tidy evaluation .data[[]]
+
 ```
 
 

@@ -59,7 +59,10 @@ nba_game <- nba_game %>%
 nba_game <- nba_game %>% #there are both OT and 2OT
   mutate(OT = ifelse(OT == "", FALSE, TRUE),
          home_winner = ifelse(home_pts > away_pts, TRUE, FALSE),
-         pts_diff = home_pts - away_pts)
+         pts_diff = home_pts - away_pts,
+         home_court_1 = 1,
+         home_court_2 = 0
+         )
 
 save(nba_game, file = "data/nba_game.rda")
 ```

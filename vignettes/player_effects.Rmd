@@ -1,0 +1,42 @@
+---
+title: "Player Effects"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{player_effects}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(compr)
+```
+
+The `compr` package in `R` provides a framework for fitting paired competition models. The primary function within this package, `comp_glm()`, enables users to model competition outcomes. One of the key features of this function is the ability to incorporate individual player effects through the `p1_effects` and `p2_effects` arguments.
+
+The `p1_effects` and `p2_effects` arguments allow users to specify one-sided formulas that represent player-level effects for the first and second players, respectively. These effects can capture individual characteristics or advantages that may influence the competition outcomes. In the context of tennis matches, for example, one might be interested in how the point server influences a player's likelihood of winning a point.
+
+```{r}
+comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
+                     p1 = "player1", p2 = "player2",
+                     p1_effects = ~ point_server1,
+                     p2_effects = ~ point_server2,
+                     ref_player = "Milos Raonic")
+
+coefficients(comp_mod)
+
+comp_mod <- comp_glm(home_winner ~ -1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     #p1_effects = ~ home_court_1,
+                     #p2_effects = ~ home_court_2,
+                     ref_player = "Boston Celtics"
+                     )
+```
+
+The displayed coefficients represent the estimated effects for each player and the additional effects for being the point server (`_point_server1`). Positive coefficients indicate an increase in the likelihood of winning a point, while negative coefficients suggest a decrease.
