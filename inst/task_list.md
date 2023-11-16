@@ -1,3 +1,9 @@
+## November 30
+
+1. Give warning use `warning("this is a warning message")` when `ref_player` does not exist.
+
+2. Add more tests for other types of models.
+
 ## November 16
 
 Options:
