@@ -5,7 +5,7 @@ The `compr` package provides functionality to fit and interpret paired competiti
 To install and load the package, run
 
 ```
-devtools::install_github(repo = "https://github.com/highamm/compr")
+devtools::install_github(repo = "https://github.com/jameswolpe/compr_james")
 
 library(compr)
 ```
