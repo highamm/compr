@@ -11,6 +11,7 @@ library(tidyverse)
 build_model_mat <- function(formula, data, p1, p2,
                             p1_effects = ~ 1, p2_effects = ~ 1,
                             ref_player = NULL) {
+  browser()
   model_frame_nocomp <- model.frame(formula, na.action =
                                       stats::na.pass, data = data)
   model_matrix_nocomp <- model.matrix(formula,
@@ -19,7 +20,6 @@ build_model_mat <- function(formula, data, p1, p2,
 
   ## model.response(model_frame_nocomp, type = "numeric") |> matrix
   response_matrix <- model_frame_nocomp[ ,1 , drop = FALSE]
-  #browser()
   player1_vec <- data |> dplyr::pull(p1)
   player2_vec <- data |> dplyr::pull(p2)
 
@@ -81,6 +81,7 @@ build_model_mat <- function(formula, data, p1, p2,
 # fit model function
 ```{r}
 fit_model <- function(mat_list, family){
+  browser()
 
   df_for_glm <- mat_list[["full_matrix"]][stats::complete.cases(mat_list[["full_matrix"]]), ] #|> as.matrix()
 
@@ -143,7 +144,7 @@ aug_mod <- function(newdata, comp_mod, ...){
 ```{r}
 comp_mod_tennis <- comp_glm(formula = point_winner ~ -1,
          data = tennis_point,
-         p1_effects = ~ 1, p2_effects = ~ 1,
+         p1_effects = ~ point_server1, p2_effects = ~ point_server2,
          ref_player = "Andy Murray",
          p1 = "player1", p2 = "player2")
 
@@ -187,4 +188,18 @@ new_df <- data.frame(
 
 ```
 
+
+
+
+
+
+```{r}
+
+comp_mod <- comp_glm(home_winner ~ -1, data = nba_game,
+                     p1 = "home", p2 = "away",
+                     p1_effects = ~ home_court_1,
+                     p2_effects = ~ home_court_2,
+                     ref_player = "Boston Celtics"
+                     )
+```
 

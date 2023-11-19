@@ -6,7 +6,6 @@ library(broom)
 ```
 
 ```{r}
-
 #nba_game<-load("data/nba_game.rda")
 comp_mod <- comp_glm(home_winner ~ 1, data = nba_game,
                      p1 = "home", p2 = "away",

@@ -95,8 +95,6 @@ todays_pred_1 <- todays_pred |>
 
 # make a plot that is a table of away and home teams name
 
-
-
 ```
 
 

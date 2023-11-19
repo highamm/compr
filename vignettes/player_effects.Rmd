@@ -30,13 +30,6 @@ comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
                      ref_player = "Milos Raonic")
 
 coefficients(comp_mod)
-
-comp_mod <- comp_glm(home_winner ~ -1, data = nba_game,
-                     p1 = "home", p2 = "away",
-                     #p1_effects = ~ home_court_1,
-                     #p2_effects = ~ home_court_2,
-                     ref_player = "Boston Celtics"
-                     )
 ```
 
 The displayed coefficients represent the estimated effects for each player and the additional effects for being the point server (`_point_server1`). Positive coefficients indicate an increase in the likelihood of winning a point, while negative coefficients suggest a decrease.

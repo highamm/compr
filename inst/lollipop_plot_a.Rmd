@@ -43,11 +43,11 @@ loli_players <- data.frame(
   home = rep(comp_mod[["data"]][["ref_player"]], 30),
   away = comp_mod[["data"]][["players_unique"]]
 
-) %>% filter(home !=away)
+) |> filter(home !=away)
 
 joined_df <- left_join(loli_players, distinct(aug_fitted_df),  by = c("home", "away"))
 
-joined_df_1 <- joined_df %>% 
+joined_df_1 <- joined_df |> 
   mutate( 
     se = .05
   #se = .se.fit
@@ -93,14 +93,14 @@ plot_win_perc_with_error_bars <- function(model, data, player_of_interest) {
   loli_players <- data.frame(
     home = rep(player_of_interest, 30),
     away = model[["data"]][["players_unique"]]
-  ) %>% filter(home != away)
+  ) |> filter(home != away)
   
   joined_df <- left_join(loli_players, distinct(aug_fitted_df), by = c("home", "away"))
   
-  joined_df_1 <- joined_df %>% 
+  joined_df_1 <- joined_df |> 
     mutate( 
       se = 0.05
-    ) %>%
+    ) |>
     mutate(away = fct_reorder(away, win_perc))
   
   ggplot(joined_df_1, aes(x = away, y = win_perc)) +
@@ -120,9 +120,6 @@ plot_win_perc_with_error_bars(comp_mod, nba_game, 'Boston Celtics')
 
 ```{r}
 plot_win_perc_with_error_bars <- function(model, data, player_of_interest){
-  #player_of_interest <- 'Boston Celtics'
-  #data <- nba_game
-  
   opp_player_list <- comp_mod[["data"]][["players_unique"]]
   ref_player_list <- rep(comp_mod[["data"]][[player_of_interest]], 30)
   
@@ -143,16 +140,16 @@ plot_win_perc_with_error_bars <- function(model, data, player_of_interest){
   loli_players <- data.frame(
     p1 = rep(player_of_interest, 30),
     p2 = comp_mod[["data"]][["players_unique"]]
-  ) %>% filter(p1 != p2)
+  ) |> filter(p1 != p2)
   
   joined_df <- left_join(loli_players, distinct(aug_fitted_df), by = c("p1", "p2"))
   
-  joined_df_1 <- joined_df %>% 
+  joined_df_1 <- joined_df |> 
     mutate( 
       win_perc = exp(.fitted)/ (1+exp(.fitted)),
       u_bound = exp(.fitted + .se.fit)/ (1+ exp(.fitted + .se.fit)),
       l_bound = exp(.fitted - .se.fit)/ (1+ exp(.fitted - .se.fit))
-    ) %>%
+    ) |>
     mutate(p2 = fct_reorder(p2, win_perc))
   
   ggplot(joined_df_1, aes(x = p2, y = win_perc)) +
@@ -165,13 +162,21 @@ plot_win_perc_with_error_bars <- function(model, data, player_of_interest){
     theme_bw() +
     coord_flip()
 }
-```
 
+
+```
 
 ```{r}
-win_pred <- function(model, data, player_of_interest){
-  
-  
+plot_win_perc_with_error_bars <- function(model, data, player_of_interest){
+  aug_mod(data, model)
+  joined_df_1 <- joined_df |> 
+  mutate( 
+    win_perc = exp(.fitted)/ (1+exp(.fitted)),
+    u_bound = exp(.fitted + .se.fit)/ (1+ exp(.fitted + .se.fit)),
+    l_bound = exp(.fitted - .se.fit)/ (1+ exp(.fitted - .se.fit))
+  ) |>
+  mutate(p2 = fct_reorder(p2, win_perc))
 }
 ```
+
 

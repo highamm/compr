@@ -11,11 +11,9 @@ test_that("snapshot test for comp_glm", {
                               p1_effects = ~ 1, p2_effects = ~ 1,
                               ref_player = "Milos Raonic")
   expect_snapshot(
-    waldo::compare(
-      cat(comp_glm_result)
-    )
+      comp_glm_result
   )
 })
 
-# tried expect_snapshot_output
+# snapshot for models with covariates
 #
