@@ -11,7 +11,6 @@ library(tidyverse)
 build_model_mat <- function(formula, data, p1, p2,
                             p1_effects = ~ 1, p2_effects = ~ 1,
                             ref_player = NULL) {
-  browser()
   model_frame_nocomp <- model.frame(formula, na.action =
                                       stats::na.pass, data = data)
   model_matrix_nocomp <- model.matrix(formula,
@@ -81,7 +80,6 @@ build_model_mat <- function(formula, data, p1, p2,
 # fit model function
 ```{r}
 fit_model <- function(mat_list, family){
-  browser()
 
   df_for_glm <- mat_list[["full_matrix"]][stats::complete.cases(mat_list[["full_matrix"]]), ] #|> as.matrix()
 

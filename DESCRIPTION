@@ -19,5 +19,5 @@ Suggests:
 Config/testthat/edition: 3
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
-URL: https://github.com/highamm/compr_james
-BugReports: https://github.com/highamm/compr_james/issues
+URL: https://github.com/jameswolpe/compr_james
+BugReports: https://github.com/jameswolpe/compr_james/issues

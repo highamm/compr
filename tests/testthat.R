@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(compr)
+library(compr_james)
 
-test_check("compr")
+test_check("compr_james")
