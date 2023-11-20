@@ -1,6 +1,6 @@
 
 ```{r setup}
-library(compr)
+library(compr_james)
 library(tidyverse)
 library(broom)
 ```
