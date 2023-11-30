@@ -68,6 +68,11 @@ build_model_mat <- function(formula, data, p1, p2,
                       player2_vec) |>
     unique()
 
+  if (!(ref_player %in% players_unique)) {
+    warning("ref_player is not in players_unique.")
+    stop()
+  }
+
   p1_mat <- model.matrix(p1_effects,
                          model.frame(p1_effects, data,
                                      na.action = stats::na.pass))

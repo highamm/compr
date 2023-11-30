@@ -25,6 +25,11 @@ build_model_mat <- function(formula, data, p1, p2,
   players_unique <- c(player1_vec,
                       player2_vec) |>
     unique()
+  
+  if (!(ref_player %in% players_unique)) {
+  warning("ref_player is not in players_unique.")
+  stop()
+}
 
   p1_mat <- model.matrix(p1_effects,
                          model.frame(p1_effects, data,
@@ -64,7 +69,6 @@ build_model_mat <- function(formula, data, p1, p2,
 
   full_matrix <- cbind(response_matrix, model_matrix_nocomp, comp_matrix_red)
 
-  #FIXME: used this to be able to pass ref_player to fit_model
   mat_list <- list(full_matrix = full_matrix,
                    ref_player = ref_player,
                    data = data,
@@ -143,7 +147,7 @@ aug_mod <- function(newdata, comp_mod, ...){
 comp_mod_tennis <- comp_glm(formula = point_winner ~ -1,
          data = tennis_point,
          p1_effects = ~ point_server1, p2_effects = ~ point_server2,
-         ref_player = "Andy Murray",
+         ref_player = "James Wolpe",
          p1 = "player1", p2 = "player2")
 
 #3. Create new data
@@ -154,6 +158,29 @@ new_df <- data.frame(
   player2 = unique_players
 )
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ```{r}
@@ -192,12 +219,107 @@ new_df <- data.frame(
 
 
 ```{r}
-
+library(comprjames)
+library(tidyverse)
+library(rvest)
 comp_mod <- comp_glm(home_winner ~ -1, data = nba_game,
                      p1 = "home", p2 = "away",
                      p1_effects = ~ home_court_1,
                      p2_effects = ~ home_court_2,
                      ref_player = "Boston Celtics"
                      )
+
+```
+
+```{r}
+# Define the list of URLs
+urls <- c(
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-october.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-november.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-december.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-january.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-february.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-march.html",
+  "https://www.basketball-reference.com/leagues/NBA_2024_games-april.html"
+)
+
+# Initialize an empty list to store DataFrames
+dfs <- list()
+
+# Loop through the URLs and scrape data
+for (url in urls) {
+  page_html <- url %>%
+    read_html()
+  
+  df <- page_html %>%
+    html_nodes("table") %>%
+    .[[1]] %>%
+    html_table(header = TRUE)
+  
+  dfs[[url]] <- df
+}
+
+# Combine the DataFrames into one
+nba_game <- do.call(rbind, dfs)
+rownames(nba_game) <- NULL
+
+nba_game <- nba_game[1:1230, ]
+nba_game <- nba_game[, -c(2, 7, 9, 10, 11)]
+
+nba_game <- nba_game |>
+  rename(
+    date = 1,
+    away = 2,
+    away_pts = 3,
+    home = 4,
+    home_pts = 5,
+    OT = 6
+  )
+
+nba_season <- nba_game |> #there are both OT and 2OT
+  mutate(OT = ifelse(OT == "", FALSE, TRUE),
+         home_winner = ifelse(home_pts > away_pts, TRUE, FALSE),
+         pts_diff = home_pts - away_pts)
+# convert date to date format
+nba_season$date <- as.Date(nba_season$date, format = "%a, %b %d, %Y")
+
+
+nba_season <- nba_season %>% #there are both OT and 2OT
+  mutate(OT = ifelse(OT == "", FALSE, TRUE),
+         home_winner = ifelse(home_pts > away_pts, TRUE, FALSE),
+         pts_diff = home_pts - away_pts,
+         home_court_1 = 1,
+         home_court_2 = 0
+  )
+
+#get todays date
+today <- Sys.Date()
+
+# split up nba_season 2 df's one before today and one after
+nba_season_before <- nba_season |>
+  filter(date < today)
+
+#get all of todays games
+todays_games <- nba_season |>
+  filter(date == today) |>
+  select(-date, -away_pts, -home_pts, -OT, -home_winner, -pts_diff, -home_court_1, -home_court_2)
+
+comp_mod <- comp_glm(home_winner ~ -1, data = nba_season_before,
+                     family = binomial,
+                     p1 = "home", p2 = "away",
+                     p1_effects = ~ home_court_1,
+                     p2_effects = ~ home_court_2,
+                     ref_player = "Boston Celtics"
+                     )
+
+
+foo <-aug_mod(todays_games, comp_mod)
+
+foo |> 
+    mutate( 
+      win_perc = exp(.fitted)/ (1+exp(.fitted)),
+      u_bound = exp(.fitted + .se.fit)/ (1+ exp(.fitted + .se.fit)),
+      l_bound = exp(.fitted - .se.fit)/ (1+ exp(.fitted - .se.fit))
+    )
 ```
 
