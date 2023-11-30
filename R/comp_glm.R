@@ -17,7 +17,8 @@
 #' @param p2_effects a one-sided formula object specifying player-level effects for
 #'   the second player.
 #' @param ref_player a string representing the reference player.
-# @param ... additional arguments to be passed to the model frame and model matrix
+#' @param family The family of the generalized linear model (default is "binomial").
+#' @param ... additional arguments to be passed to the model frame and model matrix
 #' functions, as well as the GLM function.
 # @return a fitted model object of class "glm" and "lm" with competition modeling results.
 # @examples
@@ -26,14 +27,6 @@
 #'       p1_effects = ~ point_server1, p2_effects = ~ point_server2,
 #'       ref_player = "Milos Raonic", family = binomial)
 #'
-#' @param formula
-#' @param data
-#' @param p1
-#' @param p2
-#' @param p1_effects
-#' @param p2_effects
-#' @param ref_player
-#' @param family
 #'
 #' @export
 

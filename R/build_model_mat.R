@@ -19,14 +19,6 @@
 # @param ... additional arguments to be passed to the model frame and model matrix
 #' functions.
 #'
-#' @param formula
-#' @param data
-#' @param p1
-#' @param p2
-#' @param p1_effects
-#' @param p2_effects
-#' @param ref_player
-#'
 #' @return a list containing the model matrix components needed for competition modeling.
 #' @examples
 #' build_model_mat(point_winner ~ atp_importance, data = tennis_point,

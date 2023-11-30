@@ -1,4 +1,4 @@
-
+#Do I need to document ...?
 
 ```{r setup}
 library(compr)
@@ -28,6 +28,7 @@ build_model_mat <- function(formula, data, p1, p2,
   
   if (!(ref_player %in% players_unique)) {
   warning("ref_player is not in players_unique.")
+  #FIXME do I want to stop here or just make ref_player the first player?
   stop()
 }
 

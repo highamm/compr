@@ -3,9 +3,8 @@
 #' This function extends a paired competition model with new data, returning the augmented results.
 #
 #' @param newdata a data frame containing new data to be added to the original data used to build the model.
-#'
-#' @param ...
 #' @param comp_mod a paired competition model object.
+#' @param ...
 #'
 #' @return an augmented data frame with the results of the paired competition model extended with the new data.
 #' @examples
