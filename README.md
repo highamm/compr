@@ -11,7 +11,7 @@ library(comprjames)
 ```
 
 # comprjames
-The `comprjames` package is designed to facilitate the fitting and interpretation of paired competition models in `R`. The primary function, `comp_glm()`, is the core feature of this package. It allows users to model paired competition outcomes using a formula that includes the response variable (a numeric vector of 0's and 1's) and contest-level predictors.
+The `comprjames` package is designed to facilitate the fitting and interpretation of paired competition models in `R`. The primary function, `comp_glm()`, is the core feature of this package. It allows users to model paired competition outcomes using a formula that includes the response variable and contest-level predictors.
 
 ## Installation
 To install and load the `comprjames` package, use the following commands:
