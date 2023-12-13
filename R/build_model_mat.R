@@ -52,7 +52,6 @@ build_model_mat <- function(formula, data, p1, p2,
 
   ## model.response(model_frame_nocomp, type = "numeric") |> matrix
   response_matrix <- model_frame_nocomp[ ,1 , drop = FALSE]
-  #browser()
   player1_vec <- data |> dplyr::pull(p1)
   player2_vec <- data |> dplyr::pull(p2)
 
@@ -61,8 +60,7 @@ build_model_mat <- function(formula, data, p1, p2,
     unique()
 
   if (!(ref_player %in% players_unique)) {
-    warning("ref_player is not in players_unique.")
-    stop()
+    warning("ref_player is not in players_unique. Setting ref_player to first player in players_unique.")
   }
 
   p1_mat <- model.matrix(p1_effects,
@@ -103,7 +101,6 @@ build_model_mat <- function(formula, data, p1, p2,
 
   full_matrix <- cbind(response_matrix, model_matrix_nocomp, comp_matrix_red)
 
-  #FIXME: used this to be able to pass ref_player to fit_model
   mat_list <- list(full_matrix = full_matrix,
                    ref_player = ref_player,
                    data = data,
