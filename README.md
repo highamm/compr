@@ -1,24 +1,24 @@
-# comprjames
+# compr
 
-The `comprjames` package provides functionality to fit and interpret paired competition models in `R`.
+The `compr` package provides functionality to fit and interpret paired competition models in `R`.
 
 To install and load the package, run
 
 ```
-devtools::install_github(repo = "https://github.com/jameswolpe/comprjames")
+devtools::install_github(repo = "https://github.com/jameswolpe/compr")
 
-library(comprjames)
+library(compr)
 ```
 
-# comprjames
-The `comprjames` package is designed to facilitate the fitting and interpretation of paired competition models in `R`. The primary function, `comp_glm()`, is the core feature of this package. It allows users to model paired competition outcomes using a formula that includes the response variable and contest-level predictors.
+# compr
+The `compr` package is designed to facilitate the fitting and interpretation of paired competition models in `R`. The primary function, `comp_glm()`, is the core feature of this package. It allows users to model paired competition outcomes using a formula that includes the response variable and contest-level predictors.
 
 ## Installation
-To install and load the `comprjames` package, use the following commands:
+To install and load the `compr` package, use the following commands:
 
 ```
-devtools::install_github(repo = "https://github.com/jameswolpe/comprjames")
-library(comprjames)
+devtools::install_github(repo = "https://github.com/jameswolpe/compr")
+library(compr)
 ```
 
 ## Functionality
@@ -42,4 +42,4 @@ comp_mod <- comp_glm(point_winner ~ -1, data = tennis_point,
                      ref_player = "Milos Raonic")
 ```
                      
-Feel free to explore and leverage the comprjames package to enhance your paired competition modeling in `R`. For detailed information and usage examples, refer to the package documentation.
+Feel free to explore and leverage the compr package to enhance your paired competition modeling in `R`. For detailed information and usage examples, refer to the package documentation.

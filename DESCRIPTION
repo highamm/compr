@@ -1,4 +1,4 @@
-Package: comprjames
+Package: compr
 Type: Package
 Title: Facilitating Fitting and Interpretation of Paired Competition Models in R
 Version: 0.1.0
@@ -19,5 +19,5 @@ Suggests:
 Config/testthat/edition: 3
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
-URL: https://github.com/jameswolpe/comprjames
-BugReports: https://github.com/jameswolpe/comprjames/issues
+URL: https://github.com/jameswolpe/compr
+BugReports: https://github.com/jameswolpe/compr/issues

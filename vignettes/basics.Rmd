@@ -15,10 +15,10 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(comprjames)
+library(compr)
 ```
 
-The purpose of the `comprjames` package is to provide functionality for fitting paired competition models in `R`. The primary function, `comp_glm()` has the following arguments:
+The purpose of the `compr` package is to provide functionality for fitting paired competition models in `R`. The primary function, `comp_glm()` has the following arguments:
 
 * `formula`, giving the response variable (a numeric vector of 0's and 1's) and contest-level predictors.
 * `data`, the data used.

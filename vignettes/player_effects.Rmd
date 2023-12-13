@@ -15,10 +15,10 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(comprjames)
+library(compr)
 ```
 
-The `comprjames` package in `R` provides a framework for fitting paired competition models. The primary function within this package, `comp_glm()`, enables users to model competition outcomes. One of the key features of this function is the ability to incorporate individual player effects through the `p1_effects` and `p2_effects` arguments.
+The `compr` package in `R` provides a framework for fitting paired competition models. The primary function within this package, `comp_glm()`, enables users to model competition outcomes. One of the key features of this function is the ability to incorporate individual player effects through the `p1_effects` and `p2_effects` arguments.
 
 The `p1_effects` and `p2_effects` arguments allow users to specify one-sided formulas that represent player-level effects for the first and second players, respectively. These effects can capture individual characteristics or advantages that may influence the competition outcomes. In the context of tennis matches, for example, one might be interested in how the point server influences a player's likelihood of winning a point.
 
