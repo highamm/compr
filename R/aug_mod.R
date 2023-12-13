@@ -4,11 +4,11 @@
 #
 #' @param newdata a data frame containing new data to be added to the original data used to build the model.
 #' @param comp_mod a paired competition model object.
-#' @param ...
-#'
+#' @param ... additional arguments to be passed to the `augment` function.
 #' @return an augmented data frame with the results of the paired competition model extended with the new data.
+#'   The augmented data frame includes columns for the original data, fitted values, and standard errors.
 #' @examples
-#' # Create a paired competition model comp_mod using your data and formula
+#' # Assume comp_mod is a paired competition model created using your data and formula
 #' # Define new data in the data frame newdata
 #' augmented_model <- aug_mod(newdata, comp_mod)
 #'
