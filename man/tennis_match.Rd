@@ -27,8 +27,7 @@ A data set containing tennis matches in 2023 for 8 players.
 players <- c("Carlos Alcaraz", "Daniil Medvedev", "Holger Rune",
 "Novak Djokovic", "Jannik Sinner", "Taylor Fritz",
 "Karen Khachanov", "Stefanos Tsitsipas")
-tennis_match <- readr::read_csv("https://raw.githubusercontent.com/
-JeffSackmann/tennis_atp/master/atp_matches_2023.csv") |>
+tennis_match <- readr::read_csv("https://raw.githubusercontent.com/JeffSackmann/tennis_atp/master/atp_matches_2023.csv") |>
   dplyr::filter(winner_name \%in\% players &
                  loser_name \%in\% players) |>
  dplyr::select(winner_name, loser_name, winner_age, loser_age,

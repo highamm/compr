@@ -1,11 +1,11 @@
 Package: compr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Facilitating Fitting and Interpretation of Paired Competition Models in R
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Author: James Wolpe, Dr. Matt Higham
+Maintainer: James Wolpe <jjwolp19@stlawu.edu>
+Description: The `compr` package is designed to streamline the fitting and interpretation of paired competition models in `R`.
+    The core feature, `comp_glm()`, serves as the primary function, enabling users to model paired competition outcomes.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -17,7 +17,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
-URL: https://github.com/highamm/compr
-BugReports: https://github.com/highamm/compr/issues
+URL: https://github.com/jameswolpe/compr
+BugReports: https://github.com/jameswolpe/compr/issues

@@ -141,4 +141,31 @@
 "toy_comp"
 
 
+#' NBA Game Data
+#'
+#' A dataset containing information about NBA games, including details about the date, teams (away and home), points scored by each team, whether the game went into overtime, and the outcome (home team winner).
+#'
+#' @format A data frame with 8 variables
+#' \describe{
+#'   \item{date}{the date of the game}
+#'   \item{away}{the name of the away team}
+#'   \item{away_pts}{points scored by the away team}
+#'   \item{home}{the name of the home team}
+#'   \item{home_pts}{points scored by the home team}
+#'   \item{OT}{a logical indicating whether the game went into overtime}
+#'   \item{home_winner}{a logical indicating whether the home team won the game}
+#'   \item{pts_diff}{the point difference between the home and away teams}
+#'   \item{home_court_1}{a binary indicator for home team (1 for home team, 0 otherwise)}
+#'   \item{home_court_2}{a binary indicator for home team (1 for home team, 0 otherwise)}
+#'   ...
+#' }
+#'
+#' @examples
+#' \dontrun{
+#'   # TODO what do I add here
+#'   nba_game <- readr::read_csv("path/to/nba_game_data.csv")
+#' }
+"nba_game"
+
+
 
